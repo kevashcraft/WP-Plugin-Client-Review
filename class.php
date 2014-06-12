@@ -465,7 +465,7 @@ class clientreview {
 		wp_enqueue_script('clientreview');
 		?>
 			<div id="cr_review">
-				Access code: <input type="number" maxlength="7" onkeyup="cr_getter(this)" id="cr_ac">
+				Access code: <input type="number" maxlength="7" onkeyup="cr_getter(this)" id="cr_ac" value="767676">
 			</div>
 			<script type="text/javascript">
 				jQuery(document).ready(function($) {
@@ -490,40 +490,24 @@ class clientreview {
 		<style type="text/css">
 			#cr_review {
 				font-family: 'Ubuntu Condensed';
-				border: 1px dashed black;
 				display: block;
-				width: 100%;
 			}
-			
-			#cr_review span{
-				display: inline-block;
-				
+			#cr_review h3 {
+				padding: 35px 0 15px 0;
 			}
 			#cr_review li {
-				display: block;
-				position: relative;
-				margin-bottom: 45px;
-			}
-			#cr_review li span {
+				font-family: 'Ubuntu';
 				font-size: 16px;
-				position: absolute;
-				top: 29px;
-				padding-left: 20px;
-			}
-			#cr_review .cr_commit {
-				top: 60px;
-				right: 45px;
-				border: 1px dashed black;
-				padding: 5px;
-				}
-				
-			#cr_review li span:first-of-type {
-				font-weight: bold;
-			}
-			
-			#cr_review li:before{
+				display: block;
+				margin-left: 45px;
 				position: relative;
-				top: 19px;
+				clear: both;
+				min-height: 75px;
+			}
+			#cr_review li:before{
+				position: absolute;
+				top: -10px;
+				left: -50px;
 			}
 			#cr_review li.PASS:before {
 			    content: url('<? echo plugin_dir_url(__FILE__) ?>img/green-check.png');
@@ -534,6 +518,19 @@ class clientreview {
 			#cr_review li.UNKN:before {
 			    content: url('<? echo plugin_dir_url(__FILE__) ?>img/black-question.png');
 			}
+			#cr_review span {
+			}
+			#cr_review span:first-of-type {
+				float: left;
+				font-weight: bold;
+			}
+			#cr_review .cr_commit {
+				border: 1px dashed black;
+				float: right;
+				clear: both;
+				margin: 5px 25px 35px 0;
+			}
+			
 		
 		
 		</style>
