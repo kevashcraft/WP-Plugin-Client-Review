@@ -302,7 +302,7 @@ class clientreview {
 				ORDER BY id ASC";
 			$results = $wpdb->get_results($stmt);
 			foreach($results as $result) {
-				echo "<div class='clientreview_div_list'><a href=\"admin.php?page=client-reviews&cr_id=$result->id\">$result->id - $result->business_name - $result->website</a></div>";
+				echo "<div class='clientreview_div_list'><a href=\"admin.php?page=client-reviews&cr_id=$result->id\">$result->access_code - $result->business_name - $result->website</a></div>";
 			} 
 		}
 	}		
@@ -366,7 +366,7 @@ class clientreview {
 				var crdata = $('#clientreview_form').serialize();
 				console.log(crdata);
 				$.post(ajaxurl, crdata, function(response){
-					console.log(response);
+					document.location = "admin.php?page=client-reviews-add-new";
 				});
 				return false;
 			});
@@ -376,6 +376,10 @@ class clientreview {
 	}		
 	public static function addareview_receiver() {
 		global $wpdb;
+		$table = $wpdb->prefix . 'cr_reviews';
+		do {
+			$cr_ac = rand(1000000, 9999999);
+		} while($wpdb->get_row('SELECT * FROM $table WHERE access_code=$cr_ac') != NULL);
 		$data = array(
 			'business_name' => $_POST['business_name'],
 			'website' => $_POST['website'],
@@ -450,9 +454,9 @@ class clientreview {
 			'fs_active' => $_POST['fs_active'],
 			'fs_active_n' => $_POST['fs_active_n'],
 			'fs_moderated_n' => $_POST['fs_moderated_n'],
-			'fs_moderated' => $_POST['fs_moderated']
+			'fs_moderated' => $_POST['fs_moderated'],
+			'access_code' => $cr_ac
 		);
-		$table = $wpdb->prefix . 'cr_reviews';
 		$wpdb->insert($table, $data);
 		die(); //Required
 	}
@@ -481,65 +485,105 @@ class clientreview {
 				Try Again<br>
 				Access code: <input type="number" maxlength="7" onkeyup="cr_getter(this)" id="cr_ac">
 		<? } else { ?>
+		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu">
+		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu+Condensed">
+		<style type="text/css">
+			#cr_review {
+				font-family: 'Ubuntu Condensed';
+				border: 1px dashed black;
+				display: block;
+				width: 100%;
+			}
+			
+			#cr_review span{
+				display: inline-block;
+				
+			}
+			#cr_review li {
+				display: block;
+				position: relative;
+				margin-bottom: 45px;
+			}
+			#cr_review li span {
+				font-size: 16px;
+				position: absolute;
+				top: 29px;
+				padding-left: 20px;
+			}
+			#cr_review .cr_commit {
+				top: 60px;
+				right: 45px;
+				border: 1px dashed black;
+				padding: 5px;
+				}
+				
+			#cr_review li span:first-of-type {
+				font-weight: bold;
+			}
+			
+			#cr_review li:before{
+				position: relative;
+				top: 19px;
+			}
+			#cr_review li.PASS:before {
+			    content: url('<? echo plugin_dir_url(__FILE__) ?>img/green-check.png');
+			}
+			#cr_review li.FAIL:before {
+			    content: url('<? echo plugin_dir_url(__FILE__) ?>img/red-x.png');
+			}
+			#cr_review li.UNKN:before {
+			    content: url('<? echo plugin_dir_url(__FILE__) ?>img/black-question.png');
+			}
+		
+		
+		</style>
+
 		<h1>Online Presence Evaluation</h1>
 		<h2><? echo $result->business_name . " - " . $result->website ?></h2>		
-		<h3>Search Engine Optimization (SEO)</h3>				
-							
-				<? if(isset($result->targeted_keywords)){?> <li class="<? echo $result->targeted_keywords ?>"><span>Does your content contain optimized keywords?</span><span><? echo $result->targeted_keywords_n ?></span></li><?}?>	
-				<? if(isset($result->optimized_titles)){?> <li class="<? echo $result->optimized_titles ?>"><span>Does your content contain optimized titles?</span><span><? echo $result->optimized_titles_n ?></span></li><?}?>		
-				<? if(isset($result->optimized_content)){?> <li class="<? echo $result->optimized_content ?>"><span>Is your website content optimized?</span><span><? echo $result->optimized_content_n ?></span></li><?}?>			
-				<? if(isset($result->optimized_descriptions)){?> <li class="<? echo $result->optimized_descriptions ?>"><span>Does your website contain optimized descriptions?</span><span><? echo $result->optimized_descriptions_n ?></span></li><?}?>			
-				<? if(isset($result->optimized_images)){?> <li class="<? echo $result->optimized_images ?>"><span>Do you images have optimized titles and alts?</span><span><? echo $result->optimized_images_n ?></span></li><?}?>	
-						
-		<h3>User Experience (UX)</h3>
-							
-				<? if(isset($result->responsive_design)){?> <li class="<? echo $result->responsive_design ?>"><span>Is your design responsive?</span><span><? echo $result->responsive_design_n ?></span></li><?}?>			
-				<? if(isset($result->custom_favicon)){?> <li class="<? echo $result->custom_favicon ?>"><span>Do you have a customized Favicon?</span><span><? echo $result->custom_favicon_n ?></span></li><?}?>			
-				<? if(isset($result->clean_logo)){?> <li class="<? echo $result->clean_logo ?>"><span>Do you have a clean, customized logo?</span><span><? echo $result->clean_logo_n ?></span></li><?}?>			
-				<? if(isset($result->apparant_direction)){?> <li class="<? echo $result->apparant_direction ?>"><span>Does your website apparently direct users?</span><span><? echo $result->apparant_direction_n ?></span></li><?}?>	
-				<? if(isset($result->easy_to_use)){?> <li class="<? echo $result->easy_to_use ?>"><span>Is your website easy to use?</span><span><? echo $result->easy_to_use_n ?></span></li><?}?>			
-				<? if(isset($result->stylish)){?> <li class="<? echo $result->stylish ?>"><span>Is your website stylish and modern?</span><span><? echo $result->stylish_n ?></span></li><?}?>			
-				<? if(isset($result->page_speed)){?> <li class="<? echo $result->page_speed ?>"><span>Is your past speed fast enough?</span><span><? echo $result->page_speed_n ?></span></li><?}?>			
-				
-		<h3>Security</h3>				
-							
-				<? if(isset($result->offers_ssl)){?> <li class="<? echo $result->offers_ssl ?>"><span>Does your website offer SSL Connections?</span><span><? echo $result->offers_ssl_n ?></span></li><?}?>			
-				<? if(isset($result->sql_injection)){?> <li class="<? echo $result->sql_injection ?>"><span>Is your website safe from SQL Injection?</span><span><? echo $result->sql_injection_n ?></span></li><?}?>			
-				<? if(isset($result->bruteforce_attack)){?> <li class="<? echo $result->bruteforce_attack ?>"><span>Is your website safe from BruteForce Attacks?</span><span><? echo $result->bruteforce_attack_n ?></span></li><?}?>	
-				<? if(isset($result->dos_attack)){?> <li class="<? echo $result->dos_attack ?>"><span>Is your website safe from DOS Attacks?</span><span><? echo $result->dos_attack_n ?></span></li><?}?>			
-				<? if(isset($result->secure_admin_page)){?> <li class="<? echo $result->secure_admin_page ?>"><span>Do you have a secure admin page?</span><span><? echo $result->secure_admin_page_n ?></span></li><?}?>
-							
-		<h3>Social Media Connections</h3>				
-			<h5>Google Plus</h5>	
-					
-						<? if(isset($result->gp_exists)){?> <li class="<? echo $result->gp_exists ?>"><span>Does your business have a Google Plus page?</span><span><? echo $result->gp_exists_n ?></span></li><?}?>
-						<? if(isset($result->gp_moderated)){?> <li class="<? echo $result->gp_moderated ?>"><span>Is your Google Plus page moderated?</span><span><? echo $result->gp_moderated_n ?></span></li><?}?>		
-						<? if(isset($result->gp_logo)){?> <li class="<? echo $result->gp_logo ?>"><span>Does your Google Plus page contain your unique logo?</span><span><? echo $result->gp_logo_n ?></span></li><?}?>		
-						<? if(isset($result->gp_stylish)){?> <li class="<? echo $result->gp_stylish ?>"><span>Is your Google Plus page stylish and modern?</span><span><? echo $result->gp_stylish_n ?></span></li><?}?>
-						<? if(isset($result->gp_active)){?> <li class="<? echo $result->gp_active ?>"><span>Is your Google Plus page active?</span><span><? echo $result->gp_active_n ?></span></li><?}?>
-							
-			<h5>Twitter</h5>	
-					
-						<? if(isset($result->tw_exists)){?> <li class="<? echo $result->tw_exists ?>"><span>Does your business have a Twitter account?</span><span><? echo $result->tw_exists_n ?></span></li><?}?>
-						<? if(isset($result->tw_moderated)){?> <li class="<? echo $result->tw_moderated ?>"><span>Is your Twitter page moderated?</span><span><? echo $result->tw_moderated_n ?></span></li><?}?>		
-						<? if(isset($result->tw_logo)){?> <li class="<? echo $result->tw_logo ?>"><span>Does your Twitter page contain your unique logo?</span><span><? echo $result->tw_logo_n ?></span></li><?}?>		
-						<? if(isset($result->tw_stylish)){?> <li class="<? echo $result->tw_stylish ?>"><span>Is your Twitter page stylish and modern?</span><span><? echo $result->tw_stylish_n ?></span></li><?}?>
-						<? if(isset($result->tw_active)){?> <li class="<? echo $result->tw_active ?>"><span>Is your Twitter page active?</span><span><? echo $result->tw_active_n ?></span></li><?}?>
-							
-			<h5>Facebook</h5>	
-					
-						<? if(isset($result->fb_exists)){?> <li class="<? echo $result->fb_exists ?>"><span>Does your business have a Facebook page?</span><span><? echo $result->fb_exists_n ?></span></li><?}?>
-						<? if(isset($result->fb_moderated)){?> <li class="<? echo $result->fb_moderated ?>"><span>Is your Facebook page moderated?</span><span><? echo $result->fb_moderated_n ?></span></li><?}?>		
-						<? if(isset($result->fb_logo)){?> <li class="<? echo $result->fb_logo ?>"><span>Does your Facebook page contain your unique logo?</span><span><? echo $result->fb_logo_n ?></span></li><?}?>		
-						<? if(isset($result->fb_stylish)){?> <li class="<? echo $result->fb_stylish ?>"><span>Is your Facebook page stylish and modern?</span><span><? echo $result->fb_stylish_n ?></span></li><?}?>
-						<? if(isset($result->fb_active)){?> <li class="<? echo $result->fb_active ?>"><span>Is your Facebook page active?</span><span><? echo $result->fb_active_n ?></span></li><?}?>
-							
-			<h5>Foursquare</h5>	
-					
-						<? if(isset($result->fs_exists)){?> <li class="<? echo $result->fs_exists ?>"><span>Is your business a Foursquare location?</span><span><? echo $result->fs_exists_n ?></span></li><?}?>
-						<? if(isset($result->fs_logo)){?> <li class="<? echo $result->fs_logo ?>"><span>Does your Foursquare page contain your unique logo?</span><span><? echo $result->fs_logo_n ?></span></li><?}?>		
-						<? if(isset($result->fs_moderated)){?> <li class="<? echo $result->fs_moderated ?>"><span>Is your Foursquare account moderated?</span><span><? echo $result->fs_moderated_n ?></span></li><?}?>		
-						<? if(isset($result->fs_active)){?> <li class="<? echo $result->fs_active ?>"><span>Is your Foursquare account active?</span><span><? echo $result->fs_active_n ?></span></li><?}?>
+		<? if($result->targeted_keywords != NULL){?> <h3>Search Engine Optimization (SEO)</h3>		 <? }	?>	
+				<? if($result->targeted_keywords != NULL){?> <li class="<? echo $result->targeted_keywords ?>"><span>Does your content contain optimized keywords?</span><? if($result->targeted_keywords_n != NULL){?><span class='cr_commit'><? echo $result->targeted_keywords_n ?></span><?}?></li><?}?>			
+				<? if($result->optimized_titles != NULL){?> <li class="<? echo $result->optimized_titles ?>"><span>Does your content contain optimized titles?</span><? if($result->optimized_titles_n != NULL){?><span class='cr_commit'><? echo $result->optimized_titles_n ?></span><?}?></li><?}?>			
+				<? if($result->optimized_content != NULL){?> <li class="<? echo $result->optimized_content ?>"><span>Is your website content optimized?</span><? if($result->optimized_content_n != NULL){?><span class='cr_commit'><? echo $result->optimized_content_n ?></span><?}?></li><?}?>			
+				<? if($result->optimized_descriptions != NULL){?> <li class="<? echo $result->optimized_descriptions ?>"><span>Does your website contain optimized descriptions?</span><? if($result->optimized_descriptions_n != NULL){?><span class='cr_commit'><? echo $result->optimized_descriptions_n ?></span><?}?></li><?}?>			
+				<? if($result->optimized_images != NULL){?> <li class="<? echo $result->optimized_images ?>"><span>Do you images have optimized titles and alts?</span><? if($result->optimized_images_n != NULL){?><span class='cr_commit'><? echo $result->optimized_images_n ?></span><?}?></li><?}?>	
+		<? if($result->responsive_design != NULL){?> <h3>User Experience (UX)</h3> <? }	?>
+				<? if($result->responsive_design != NULL){?> <li class="<? echo $result->responsive_design ?>"><span>Is your design responsive?</span><? if($result->responsive_design_n != NULL){?><span class='cr_commit'><? echo $result->responsive_design_n ?></span><?}?></li><?}?>			
+				<? if($result->custom_favicon != NULL){?> <li class="<? echo $result->custom_favicon ?>"><span>Do you have a customized Favicon?</span><? if($result->custom_favicon_n != NULL){?><span class='cr_commit'><? echo $result->custom_favicon_n ?></span><?}?></li><?}?>			
+				<? if($result->clean_logo != NULL){?> <li class="<? echo $result->clean_logo ?>"><span>Do you have a clean, customized logo?</span><? if($result->clean_logo_n != NULL){?><span class='cr_commit'><? echo $result->clean_logo_n ?></span><?}?></li><?}?>			
+				<? if($result->apparant_direction != NULL){?> <li class="<? echo $result->apparant_direction ?>"><span>Does your website apparently direct users?</span><? if($result->apparant_direction_n != NULL){?><span class='cr_commit'><? echo $result->apparant_direction_n ?></span><?}?></li><?}?>			
+				<? if($result->easy_to_use != NULL){?> <li class="<? echo $result->easy_to_use ?>"><span>Is your website easy to use?</span><? if($result->easy_to_use_n != NULL){?><span class='cr_commit'><? echo $result->easy_to_use_n ?></span><?}?></li><?}?>			
+				<? if($result->stylish != NULL){?> <li class="<? echo $result->stylish ?>"><span>Is your website stylish and modern?</span><? if($result->stylish_n != NULL){?><span class='cr_commit'><? echo $result->stylish_n ?></span><?}?></li><?}?>			
+				<? if($result->page_speed != NULL){?> <li class="<? echo $result->page_speed ?>"><span>Is your past speed fast enough?</span><? if($result->page_speed_n != NULL){?><span class='cr_commit'><? echo $result->page_speed_n ?></span><?}?></li><?}?>			
+		<? if($result->offers_ssl != NULL){?> <h3>Security</h3>	 <? }				?>
+				<? if($result->offers_ssl != NULL){?> <li class="<? echo $result->offers_ssl ?>"><span>Does your website offer SSL Connections?</span><? if($result->offers_ssl_n != NULL){?><span class='cr_commit'><? echo $result->offers_ssl_n ?></span><?}?></li><?}?>			
+				<? if($result->sql_injection != NULL){?> <li class="<? echo $result->sql_injection ?>"><span>Is your website safe from SQL Injection?</span><? if($result->sql_injection_n != NULL){?><span class='cr_commit'><? echo $result->sql_injection_n ?></span><?}?></li><?}?>			
+				<? if($result->bruteforce_attack != NULL){?> <li class="<? echo $result->bruteforce_attack ?>"><span>Is your website safe from BruteForce Attacks?</span><? if($result->bruteforce_attack_n != NULL){?><span class='cr_commit'><? echo $result->bruteforce_attack_n ?></span><?}?></li><?}?>			
+				<? if($result->dos_attack != NULL){?> <li class="<? echo $result->dos_attack ?>"><span>Is your website safe from DOS Attacks?</span><? if($result->dos_attack_n != NULL){?><span class='cr_commit'><? echo $result->dos_attack_n ?></span><?}?></li><?}?>			
+				<? if($result->secure_admin_page != NULL){?> <li class="<? echo $result->secure_admin_page ?>"><span>Do you have a secure admin page?</span><? if($result->secure_admin_page_n != NULL){?><span class='cr_commit'><? echo $result->secure_admin_page_n ?></span><?}?></li><?}?>
+		<? if($result->gp_exists != NULL || $result->tw_exists != NULL || $result->fb_exists != NULL || $result->fs_exists != NULL){?>  <h3>Social Media Connections</h3>	<? } ?>			
+			<? if($result->gp_exists != NULL){?> <h5>Google Plus</h5> <? }		?>
+						<? if($result->gp_exists != NULL){?> <li class="<? echo $result->gp_exists ?>"><span>Does your business have a Google Plus page?</span><? if($result->gp_exists_n != NULL){?><span class='cr_commit'><? echo $result->gp_exists_n ?></span><?}?></li><?}?>
+						<? if($result->gp_moderated != NULL){?> <li class="<? echo $result->gp_moderated ?>"><span>Is your Google Plus page moderated?</span><? if($result->gp_moderated_n != NULL){?><span class='cr_commit'><? echo $result->gp_moderated_n ?></span><?}?></li><?}?>		
+						<? if($result->gp_logo != NULL){?> <li class="<? echo $result->gp_logo ?>"><span>Does your Google Plus page contain your unique logo?</span><? if($result->gp_logo_n != NULL){?><span class='cr_commit'><? echo $result->gp_logo_n ?></span><?}?></li><?}?>		
+						<? if($result->gp_stylish != NULL){?> <li class="<? echo $result->gp_stylish ?>"><span>Is your Google Plus page stylish and modern?</span><? if($result->gp_stylish_n != NULL){?><span class='cr_commit'><? echo $result->gp_stylish_n ?></span><?}?></li><?}?>
+						<? if($result->gp_active != NULL){?> <li class="<? echo $result->gp_active ?>"><span>Is your Google Plus page active?</span><? if($result->gp_active_n != NULL){?><span class='cr_commit'><? echo $result->gp_active_n ?></span><?}?></li><?}?>
+			<? if($result->tw_exists != NULL){?> <h5>Twitter</h5>	 <? }	?>
+						<? if($result->tw_exists != NULL){?> <li class="<? echo $result->tw_exists ?>"><span>Does your business have a Twitter account?</span><? if($result->tw_exists_n != NULL){?><span class='cr_commit'><? echo $result->tw_exists_n ?></span><?}?></li><?}?>
+						<? if($result->tw_moderated != NULL){?> <li class="<? echo $result->tw_moderated ?>"><span>Is your Twitter page moderated?</span><? if($result->tw_moderated_n != NULL){?><span class='cr_commit'><? echo $result->tw_moderated_n ?></span><?}?></li><?}?>		
+						<? if($result->tw_logo != NULL){?> <li class="<? echo $result->tw_logo ?>"><span>Does your Twitter page contain your unique logo?</span><? if($result->tw_logo_n != NULL){?><span class='cr_commit'><? echo $result->tw_logo_n ?></span><?}?></li><?}?>		
+						<? if($result->tw_stylish != NULL){?> <li class="<? echo $result->tw_stylish ?>"><span>Is your Twitter page stylish and modern?</span><? if($result->tw_stylish_n != NULL){?><span class='cr_commit'><? echo $result->tw_stylish_n ?></span><?}?></li><?}?>
+						<? if($result->tw_active != NULL){?> <li class="<? echo $result->tw_active ?>"><span>Is your Twitter page active?</span><? if($result->tw_active_n != NULL){?><span class='cr_commit'><? echo $result->tw_active_n ?></span><?}?></li><?}?>
+			<? if($result->fb_exists != NULL){?> <h5>Facebook</h5> <? }		?>
+						<? if($result->fb_exists != NULL){?> <li class="<? echo $result->fb_exists ?>"><span>Does your business have a Facebook page?</span><? if($result->fb_exists_n != NULL){?><span class='cr_commit'><? echo $result->fb_exists_n ?></span><?}?></li><?}?>
+						<? if($result->fb_moderated != NULL){?> <li class="<? echo $result->fb_moderated ?>"><span>Is your Facebook page moderated?</span><? if($result->fb_moderated_n != NULL){?><span class='cr_commit'><? echo $result->fb_moderated_n ?></span><?}?></li><?}?>		
+						<? if($result->fb_logo != NULL){?> <li class="<? echo $result->fb_logo ?>"><span>Does your Facebook page contain your unique logo?</span><? if($result->fb_logo_n != NULL){?><span class='cr_commit'><? echo $result->fb_logo_n ?></span><?}?></li><?}?>		
+						<? if($result->fb_stylish != NULL){?> <li class="<? echo $result->fb_stylish ?>"><span>Is your Facebook page stylish and modern?</span><? if($result->fb_stylish_n != NULL){?><span class='cr_commit'><? echo $result->fb_stylish_n ?></span><?}?></li><?}?>
+						<? if($result->fb_active != NULL){?> <li class="<? echo $result->fb_active ?>"><span>Is your Facebook page active?</span><? if($result->fb_active_n != NULL){?><span class='cr_commit'><? echo $result->fb_active_n ?></span><?}?></li><?}?>
+			<? if($result->fs_exists != NULL){?> <h5>Foursquare</h5> <? }		?>
+						<? if($result->fs_exists != NULL){?> <li class="<? echo $result->fs_exists ?>"><span>Is your business a Foursquare location?</span><? if($result->fs_exists_n != NULL){?><span class='cr_commit'><? echo $result->fs_exists_n ?></span><?}?></li><?}?>
+						<? if($result->fs_logo != NULL){?> <li class="<? echo $result->fs_logo ?>"><span>Does your Foursquare page contain your unique logo?</span><? if($result->fs_logo_n != NULL){?><span class='cr_commit'><? echo $result->fs_logo_n ?></span><?}?></li><?}?>		
+						<? if($result->fs_moderated != NULL){?> <li class="<? echo $result->fs_moderated ?>"><span>Is your Foursquare account moderated?</span><? if($result->fs_moderated_n != NULL){?><span class='cr_commit'><? echo $result->fs_moderated_n ?></span><?}?></li><?}?>		
+						<? if($result->fs_active != NULL){?> <li class="<? echo $result->fs_active ?>"><span>Is your Foursquare account active?</span><? if($result->fs_active_n != NULL){?><span class='cr_commit'><? echo $result->fs_active_n ?></span><?}?></li><?}?>
 	<? }
 		die(); // Required
 	}
