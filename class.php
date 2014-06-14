@@ -465,7 +465,7 @@ class clientreview {
 		wp_enqueue_script('clientreview');
 		?>
 			<div id="cr_review">
-				Access code: <input type="number" maxlength="7" onkeyup="cr_getter(this)" id="cr_ac" value="767676">
+				Access code: <input type="number" maxlength="7" onkeyup="cr_getter(this)" id="cr_ac">
 			</div>
 			<script type="text/javascript">
 				jQuery(document).ready(function($) {
@@ -485,14 +485,19 @@ class clientreview {
 				Try Again<br>
 				Access code: <input type="number" maxlength="7" onkeyup="cr_getter(this)" id="cr_ac">
 		<? } else { ?>
-		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu">
-		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu+Condensed">
 		<style type="text/css">
 			#cr_review {
 				font-family: 'Ubuntu Condensed';
 				display: block;
 			}
+			#cr_review h1 {
+				font-family: 'Ubuntu Condensed';
+			}
+			#cr_review h2 {
+				font-family: 'Ubuntu Condensed';
+			}
 			#cr_review h3 {
+				font-family: 'Ubuntu Condensed';
 				padding: 35px 0 15px 0;
 			}
 			#cr_review li {
@@ -583,5 +588,12 @@ class clientreview {
 						<? if($result->fs_active != NULL){?> <li class="<? echo $result->fs_active ?>"><span>Is your Foursquare account active?</span><? if($result->fs_active_n != NULL){?><span class='cr_commit'><? echo $result->fs_active_n ?></span><?}?></li><?}?>
 	<? }
 		die(); // Required
+	}
+
+	public static function givehead() {
+		?>
+		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu">
+		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu+Condensed">
+		<?
 	}
 }

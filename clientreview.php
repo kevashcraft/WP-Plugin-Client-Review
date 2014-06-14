@@ -30,3 +30,6 @@ add_shortcode('clientreviews', array('clientreview', 'showreview'));
 // Register Javascript
 wp_register_script('clientreview', plugin_dir_url(__FILE__).'clientreview.js');
 wp_localize_script( 'clientreview', 'ClientReview', array('ajaxurl' => admin_url('admin-ajax.php')));
+
+// Add to Header
+add_action('wp_head', array('clientreview', 'givehead'));
