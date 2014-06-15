@@ -220,7 +220,6 @@ class clientreview {
 					next(self::$tables);
 					$table = current(self::$tables);
 					$tablen = $table . "_n";
-					echo "<h2>$table</h2>";
 				}
 				next(self::$questionnaire[$subject]);
 				$cs = current(self::$questionnaire[$subject]);
