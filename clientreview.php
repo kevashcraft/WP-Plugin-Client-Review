@@ -3,7 +3,7 @@
  * Plugin Name: Client Review
  * Plugin URI: https://logicduudes.com/wordpress/plugins/client-review
  * Description: Review business websites and grant access based on 7-digit code
- * Version: 0.9
+ * Version: 1.1
  * Author: Kevin Ashcraft
  * Author URI: http://kevashcraft.com
  * License: GPL2

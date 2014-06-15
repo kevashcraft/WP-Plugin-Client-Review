@@ -208,20 +208,19 @@ class clientreview {
 				$category = key(self::$questionnaire[$subject]);
 				echo "<h4>$category</h4>";
 				foreach(self::$questionnaire[$subject][$category] as $qsc) {
-					if(true) {
-						echo "
-	<li>
-		<span>".$qsc[0]."</span>
-		<input type='radio' name='$table' id='P_$table' value='1'><label for='P_$table'>Pass</label>
-		<input type='radio' name='$table' id='F_$table' value='2'><label for='F_$table'>Fail</label>
-		<input type='radio' name='$table' id='U_$table' value='3'><label for='U_$table'>Unknown</label>
-		<span><input type='text' name='$tablen'></span>
-	</li>
-						";
-					}
-				next(self::$tables);
-				$table = current(self::$tables);
-				$tablen = $table . "_n";
+					echo "
+<li>
+	<span>".$qsc[0]."</span>
+	<input type='radio' name='$table' id='P_$table' value='1'><label for='P_$table'>Pass</label>
+	<input type='radio' name='$table' id='F_$table' value='2'><label for='F_$table'>Fail</label>
+	<input type='radio' name='$table' id='U_$table' value='3'><label for='U_$table'>Unknown</label>
+	<span><input type='text' name='$tablen'></span>
+</li>
+					";
+					next(self::$tables);
+					$table = current(self::$tables);
+					$tablen = $table . "_n";
+					echo "<h2>$table</h2>";
 				}
 				next(self::$questionnaire[$subject]);
 				$cs = current(self::$questionnaire[$subject]);
@@ -319,11 +318,11 @@ Access code: <input type='number' maxlength='7' onkeyup='cr_getter(this)' id='cr
 							if($result->$table != 0){
 								if($subshow) echo "<h3>$subject</h3>";
 								$subshow = false;
-								if($catshow) echo "<h4>$category</h4>";
+								if($catshow) echo "<h4>$category</h4><div class='cr_cat'>";
 								$catshow = false;
 								echo "
 <li>
-	<span class='cr_rc".$result->$table."'>$table - ".$qsc[$result->$table]."</span>
+	<span class='cr_rc".$result->$table."'>".$qsc[$result->$table]."</span>
 								";
 								$iscode = false;
 								if(!empty($result->$tablen)) {
@@ -354,6 +353,7 @@ Access code: <input type='number' maxlength='7' onkeyup='cr_getter(this)' id='cr
 						$table = current(self::$tables);
 						$tablen = $table . "_n";
 					}
+					if(!$catshow) echo "</div>";
 					next(self::$questionnaire[$subject]);
 					$cc = current(self::$questionnaire[$subject]);
 				}
@@ -389,9 +389,19 @@ Access code: <input type='number' maxlength='7' onkeyup='cr_getter(this)' id='cr
 		padding: 35px 0 15px 0;
 	}
 	#cr_review li {
+		display: none;
+	}
+	#cr_review .cr_cat li:first-of-type {
+		display: block;
+	}
+	#cr_review .cr_cat li:first-of-type::after {
+		content: '';
+		display: block;
+		clear:both;
+	}
+	#cr_review li {
 		font-family: 'Ubuntu';
 		font-size: 16px;
-		display: block;
 		margin-left: 45px;
 		position: relative;
 		clear: both;
@@ -421,7 +431,7 @@ Access code: <input type='number' maxlength='7' onkeyup='cr_getter(this)' id='cr
 		border: 1px dashed black;
 		float: right;
 		clear: both;
-		margin: 5px 25px 35px 0;
+		margin: 5px 25px 0 0;
 	}
 </style>
 	";		
