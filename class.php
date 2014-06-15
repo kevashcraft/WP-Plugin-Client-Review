@@ -81,9 +81,10 @@ class clientreview {
 				$table = $wpdb->prefix . 'cr_reviews';
 				$stmt = "SELECT * FROM $table WHERE id=$id";
 				$result = $wpdb->get_row($stmt, OBJECT);
+				echo "<div id='clientreview_main_div'>";
 				echo "<h1>Online Presence Evaluation</h1>";
 				echo "<h2>$result->business_name - $result->website</h3>";		
-				echo "<form id='cr_edit_form'>";
+				echo "<form>";
 				$table = current(self::$tables);
 				$tablen = $table . "_n";
 				$cc = current(self::$questionnaire);
@@ -95,12 +96,16 @@ class clientreview {
 						$category = key(self::$questionnaire[$subject]);
 						echo "<h4>$category</h4>";
 						foreach(self::$questionnaire[$subject][$category] as $qsc) {
-							if(true) {
+							if(isset($result->$table)) {
+								$checked0 = "";
 								$checked1 = "";
 								$checked2 = "";
 								$checked3 = "";
 								$checked = "checked='checked'";
 								switch($result->$table) {
+									case 0:
+										$checked0 = $checked;
+										break;
 									case 1:
 										$checked1 = $checked;
 										break;
@@ -112,30 +117,34 @@ class clientreview {
 										break;
 								}
 								echo "
-	<li>
-		<span>".$qsc[$result->$table]."</span>
-		<input type='radio' name='$table' id='P_$table' value='1' $checked1><label for='P_$table'>Pass</label>
-		<input type='radio' name='$table' id='F_$table' value='2' $checked2><label for='F_$table'>Fail</label>
-		<input type='radio' name='$table' id='U_$table' value='3' $checked3><label for='U_$table'>Unknown</label>
-		<span><input type='text' name='$tablen' value=\"" . $result->$tablen . "\"></span>
-	</li>
+<li>
+	<span>".$qsc[$result->$table]."</span>
+	<input type='radio' name='$table' id='B_$table' value='0' $checked0><label for='B_$table'>Blank</label>
+	<input type='radio' name='$table' id='P_$table' value='1' $checked1><label for='P_$table'>Pass</label>
+	<input type='radio' name='$table' id='F_$table' value='2' $checked2><label for='F_$table'>Fail</label>
+	<input type='radio' name='$table' id='U_$table' value='3' $checked3><label for='U_$table'>Unknown</label>
+	<span><input type='text' name='$tablen' value=\"" . $result->$tablen . "\"></span>
+</li>
 								";
+							} else {
+								break;
 							}
-						next(self::$tables);
-						$table = current(self::$tables);
-						$tablen = $table . "_n";
+							next(self::$tables);
+							$table = current(self::$tables);
+							$tablen = $table . "_n";
 						}
 						next(self::$questionnaire[$subject]);
 						$cs = current(self::$questionnaire[$subject]);
 					}
 					next(self::$questionnaire);
-				$cc = current(self::$questionnaire);
+					$cc = current(self::$questionnaire);
 				}
+				echo "</form>";
 				echo "
 <script type='text/javascript'>
 	jQuery(document).ready(function($) {
-		$('#cr_edit_form input').attr('onfocus','input_start = this.value; console.log(input_start)');
-		$('#cr_edit_form input').attr('onblur','cr_ajaxson(this);console.log(this.value)');		
+		$('#clientreview_main_div input').attr('onfocus','input_start = this.value; console.log(input_start)');
+		$('#clientreview_main_div input').attr('onblur','cr_ajaxson(this);console.log(this.value)');		
 	});
 	function cr_ajaxson(that) {
 		if (that.value != input_start || that.getAttribute('type') == 'radio') {
@@ -146,6 +155,7 @@ class clientreview {
 	}	
 </script>
 				";			
+				echo "</div>";
 		} else {
 			global $wpdb;
 			$table = $wpdb->prefix . 'cr_reviews';
@@ -294,35 +304,61 @@ Access code: <input type='number' maxlength='7' onkeyup='cr_getter(this)' id='cr
 <h2>$result->business_name - $result->website</h2>		
 			";
 			self::populate_tq();
-			echo "<h1>Online Presence Evaluation</h1>";
 			$table = current(self::$tables);
 			$tablen = $table . "_n";
-			$cc = current(self::$questionnaire);
-			while(!empty($cc)) {
+			$cs = current(self::$questionnaire);
+			while(!empty($cs)) {
 				$subject = key(self::$questionnaire);
-				echo "<h3>$subject</h3>";
-				$cs = current(self::$questionnaire[$subject]);
-				while(!empty($cs)) {
+				$cc = current(self::$questionnaire[$subject]);
+				$subshow = true;
+				while(!empty($cc)) {
 					$category = key(self::$questionnaire[$subject]);
-					echo "<h4>$category</h4>";
+					$catshow = true;
 					foreach(self::$questionnaire[$subject][$category] as $qsc) {
 						if(isset($result->$table)) {
-							echo "
-		<li>
-			<span class='cr_rc".$result->$table."'>".$qsc[$result->$table]."</span>
-			<span class='cr_commit'>".$result->$tablen."</span>
-		</li>
-							";
+							if($result->$table != 0){
+								if($subshow) echo "<h3>$subject</h3>";
+								$subshow = false;
+								if($catshow) echo "<h4>$category</h4>";
+								$catshow = false;
+								echo "
+<li>
+	<span class='cr_rc".$result->$table."'>$table - ".$qsc[$result->$table]."</span>
+								";
+								$iscode = false;
+								if(!empty($result->$tablen)) {
+									if(strlen($result->$tablen) > 4) {
+										if(substr($result->$tablen,3,1) == ":") {
+											$iscode = true;
+											$scode = substr($result->$tablen, 0, 3);
+											$cont = substr($result->$tablen, 4);
+											switch($scode) {
+												case 'img':
+													echo "<span class='cr_commit'><img src='$cont'></span>";
+													break;
+												default:
+													$iscode = false;
+											}
+										}
+									}
+									if(!$iscode) {
+										echo "<span class='cr_commit'>".$result->$tablen."</span>";
+									}
+								}
+								echo "
+</li>
+								";
+							}
 						}
 						next(self::$tables);
 						$table = current(self::$tables);
 						$tablen = $table . "_n";
 					}
 					next(self::$questionnaire[$subject]);
-					$cs = current(self::$questionnaire[$subject]);
+					$cc = current(self::$questionnaire[$subject]);
 				}
 				next(self::$questionnaire);
-				$cc = current(self::$questionnaire);
+				$cs = current(self::$questionnaire);
 			}
 			self::style();
 		}
