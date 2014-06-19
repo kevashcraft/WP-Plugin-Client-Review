@@ -85,6 +85,9 @@ class clientreview {
 				echo "<h1>Online Presence Evaluation</h1>";
 				echo "<h2>$result->business_name - $result->website</h3>";		
 				echo "<form>";
+				echo "<input name='access_code' value='$result->access_code'>";
+				echo "<input name='business_name' value='$result->business_name'>";
+				echo "<input name='website' value='$result->website'>";
 				$table = current(self::$tables);
 				$tablen = $table . "_n";
 				$cc = current(self::$questionnaire);
@@ -241,7 +244,7 @@ class clientreview {
 			console.log(crdata);
 			$.post(ajaxurl, crdata, function(response){
 				console.log(response);
-//				document.location = 'admin.php?page=client-reviews-add-new';
+				document.location = 'admin.php?page=client-reviews-add-new';
 			});
 			return false;
 		});
@@ -274,12 +277,19 @@ class clientreview {
 	public static function showreview() {
 		wp_enqueue_script('clientreview');
 		?>
-			<div id="cr_review">
-				Access code: <input type="number" maxlength="7" onkeyup="cr_getter(this)" id="cr_ac">
+			<div id="crpi_review">
+				<h2>Online Presence Reviews</h2>
+				<p>Enter your 7-digit access code below to view your review</p>
+				<br>
+				<b>Access code:</b> <input type="number" maxlength="7" onkeyup="cr_getter(this)" id="crpi_ac">
+				<br>
+				<br>
+				<h3>Don't have a code?</h3>
+				<p><a href='https://logicdudes.com/wp-content/uploads/2014/05/number.png' class='prettyPhoto' data-jqt='mobile-tel'>Call us</a> and we will review your company's online footprint and send you your code!</p>
 			</div>
 			<script type="text/javascript">
 				jQuery(document).ready(function($) {
-					document.getElementById('cr_ac').focus();
+					document.getElementById('crpi_ac').focus();
 				});
 			</script>
 		<?
@@ -317,12 +327,9 @@ Access code: <input type='number' maxlength='7' onkeyup='cr_getter(this)' id='cr
 							if($result->$table != 0){
 								if($subshow) echo "<h3>$subject</h3>";
 								$subshow = false;
-								if($catshow) echo "<h4>$category</h4><div class='cr_cat'>";
+								if($catshow) echo "<h4>$category</h4><div class='crpi_review_category'>";
 								$catshow = false;
-								echo "
-<li>
-	<span class='cr_rc".$result->$table."'>".$qsc[$result->$table]."</span>
-								";
+								echo "<li class='crpi_review_score".$result->$table."'>".$qsc[$result->$table];
 								$iscode = false;
 								if(!empty($result->$tablen)) {
 									if(strlen($result->$tablen) > 4) {
@@ -332,7 +339,7 @@ Access code: <input type='number' maxlength='7' onkeyup='cr_getter(this)' id='cr
 											$cont = substr($result->$tablen, 4);
 											switch($scode) {
 												case 'img':
-													echo "<span class='cr_commit'><img src='$cont'></span>";
+													echo "<div class='crpi_review_note'><img src='$cont'></div>";
 													break;
 												default:
 													$iscode = false;
@@ -340,12 +347,10 @@ Access code: <input type='number' maxlength='7' onkeyup='cr_getter(this)' id='cr
 										}
 									}
 									if(!$iscode) {
-										echo "<span class='cr_commit'>".$result->$tablen."</span>";
+										echo "<div class='crpi_review_note'>".$result->$tablen."</div>";
 									}
 								}
-								echo "
-</li>
-								";
+								echo "</li>";
 							}
 						}
 						next(self::$tables);
@@ -366,73 +371,97 @@ Access code: <input type='number' maxlength='7' onkeyup='cr_getter(this)' id='cr
 
 	public static function givehead() {
 		?>
-		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu">
-		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu+Condensed">
+		<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu">
+		<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu+Condensed">
 		<?
 	}
 	public static function style() {
-	echo "
+		echo "
 <style type='text/css'>
-	#cr_review {
-		font-family: 'Ubuntu Condensed';
-		display: block;
-	}
-	#cr_review h1 {
-		font-family: 'Ubuntu Condensed';
-	}
-	#cr_review h2 {
-		font-family: 'Ubuntu Condensed';
-	}
-	#cr_review h3 {
-		font-family: 'Ubuntu Condensed';
-		padding: 35px 0 15px 0;
-	}
-	#cr_review li {
-		display: none;
-	}
-	#cr_review .cr_cat li:first-of-type {
-		display: block;
-	}
-	#cr_review .cr_cat li:first-of-type::after {
-		content: '';
-		display: block;
-		clear:both;
-	}
-	#cr_review li {
-		font-family: 'Ubuntu';
-		font-size: 16px;
-		margin-left: 45px;
-		position: relative;
-		clear: both;
-		min-height: 75px;
-	}
-	#cr_review li:before{
-		position: absolute;
-		top: -10px;
-		left: -50px;
-	}
-	#cr_review .cr_rc1:before {
-	    content: url('". plugin_dir_url(__FILE__) ."img/green-check.png');
-	}
-	#cr_review .cr_rc2:before {
-	    content: url('". plugin_dir_url(__FILE__) ."img/red-x.png');
-	}
-	#cr_review .cr_rc3:before {
-	    content: url('". plugin_dir_url(__FILE__) ."img/black-question.png');
-	}
-	#cr_review span {
-	}
-	#cr_review span:first-of-type {
-		float: left;
-		font-weight: bold;
-	}
-	#cr_review .cr_commit {
-		border: 1px dashed black;
-		float: right;
-		clear: both;
-		margin: 5px 25px 0 0;
-	}
+			#crpi_review{
+				font-family: 'Ubuntu Condensed';
+				display: block;
+				overflow: hidden;
+				position: relative;
+				left: 0;
+				padding: 25px;
+				padding-bottom: 75px;
+			}
+			#crpi_review h1 {
+				font-family: 'Ubuntu Condensed';
+			}
+			#crpi_review h2 {
+				font-family: 'Ubuntu Condensed';
+				font-size: 19px;
+				font-weight: normal;
+			}
+			#crpi_review h3 {
+				font-family: 'Ubuntu Condensed';
+				padding: 35px 0 15px 0;
+			}
+			#crpi_review_category {
+				display: block;
+			}
+
+			#crpi_review li {
+				font-family: 'Ubuntu';
+				font-size: 16px;
+				margin-left: 45px;
+				display: block;
+				padding: 15px;
+				position: relative;
+				border-radius: 7px;
+			}
+			.crpi_review_note{
+				padding: 35px;
+				box-shadow: 5px 5px 15px black;
+				background: rgba(213, 236, 255, 1);
+				position: absolute;
+				top: 0;
+				right: -100%;
+				font-weight: bold;
+				font-size: 18px;
+				max-width: 60%;
+				z-index: 10;
+			}
+			
+			#crpi_review li:hover{
+				cursor: pointer;
+				box-shadow: 1px 1px 7px black;			
+				background-color: rgba(213, 236, 255, .6);
+			}	
+			#crpi_review li.active{
+				background-color: rgba(95, 181, 255, .6);			
+			}		
+			#crpi_review li:before{
+				position: absolute;
+				top: -10px;
+				left: -50px;
+			}
+			
+			#crpi_review li:before{
+			    background-size: cover;
+			    content: '';
+ 			 	height: 20px;
+				 width: 20px;
+				 position: absolute;
+				 left: -25px;
+				 vertical-align: middle;
+				 top: 9px;	
+				 background-position: center center;
+			}			
+			
+			.crpi_review_score1:before {
+			    background-image: url('https://logicdudes.com/wp-content/plugins/clientreview/img/green-check.png');
+			    
+			}
+			.crpi_review_score2:before {
+			    background-image: url('https://logicdudes.com/wp-content/plugins/clientreview/img/red-x.png');
+			}
+			.crpi_review_score3:before {
+			    background-image: url('https://logicdudes.com/wp-content/plugins/clientreview/img/black-question.png');
+			}
 </style>
-	";		
+			";			
 	}
 }
